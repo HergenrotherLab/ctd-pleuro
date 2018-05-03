@@ -21,6 +21,7 @@ from collections import defaultdict
 from collections import OrderedDict
 import optparse
 from os.path import basename
+import csv
 
 
 def main():
@@ -39,18 +40,37 @@ def main():
     filename_base = args.output_path + '/' + \
         basename(args.input_file).strip((".sdf"))
     if(args.csv):
-        write_mol_csv(mols, filename_base)
+        with open(filename_base + '.csv', 'w') as out:
+            write_mol_csv(mols, out)
     if(args.sdf):
         write_mol_sdf(mols, filename_base)
 
 
-def write_mol_csv(mols, filename):
+def write_mol_csv(mols, outfile, includeChirality=True):
     """Writes list of molecules and properties to CSV file
     """
-    with open(filename + ".csv", 'w') as out:
-        out.write(csv_header(mols[0]) + '\n')
-        for mol in mols:
-            out.write(mol_props_to_csv(mol) + '\n')
+    w = csv.writer(outfile)
+
+    # Get prop names from first mol and get header
+    first = mols[0]
+    propNames = list(first.GetPropNames())
+    outL = []
+    outL.append('SMILES')
+    outL.extend(propNames)
+    w.writerow(outL)
+
+    # Write out properties for each molecule
+    for mol in mols:
+        smi = Chem.MolToSmiles(mol, isomericSmiles=includeChirality)
+        outL = []
+        outL.append(smi)
+        for prop in propNames:
+            if mol.HasProp(prop):
+                outL.append(str(mol.GetProp(prop)))
+            else:
+                outL.append('')
+        w.writerow(outL)
+    return
 
 
 def csv_header(mol):
@@ -65,6 +85,7 @@ def csv_header(mol):
 
 def mol_props_to_csv(mol):
     """Creates string for properties of individual molecule when writing to csv
+    TODO: keep width the same when some compounds don't have a given property
     """
     values = []
     values.append(mol.GetProp('_Name'))
