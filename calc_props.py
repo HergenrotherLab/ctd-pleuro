@@ -35,6 +35,7 @@ def main():
         remove_ligprep_props(mol)
         temp = calc_builtin_props(mol)
         calcRingDescriptors(temp)
+        calc_chiral_centers(temp)
         mols.append(temp)
 
     filename_base = args.output_path + '/' + \
@@ -136,7 +137,8 @@ def remove_ligprep_props(m):
     props = ['chiral flag', 'version', 's_m_source_file', 'i_m_source_file_index', 'i_lp_mmshare_version', 'r_lp_tautomer_probability',
              'r_epik_Ionization_Penalty', 'r_epik_Ionization_Penalty_Charging', 'r_epik_Ionization_Penalty_Neutral',
              'r_epik_State_Penalty', 'r_epik_Charging_Adjusted_Penalty', 'i_epik_Tot_Q', 'i_epik_Tot_abs_Q', 'i_f3d_flags',
-             's_lp_Force_Field', 'r_lp_Energy', 'b_lp_Chiralities_Consistent', 's_lp_Variant', 's_epik_Chemistry_Notes']
+             's_lp_Force_Field', 'r_lp_Energy', 'b_lp_Chiralities_Consistent', 's_lp_Variant', 's_epik_Chemistry_Notes', 's_epik_input',
+             's_epik_cmdline']
     for prop in props:
         m.ClearProp(prop)
 
@@ -156,6 +158,17 @@ def calc_builtin_props(m):
         m.SetProp(str(nms[x]), str(descrs[x]))
 
     return m
+
+def calc_chiral_centers(m):
+    """Calculates the number of chiral centers in a molecule
+
+    @param m: molecule for which to perform calculations
+    """
+
+    centers = Chem.FindMolChiralCenters(m, force=True, includeUnassigned=True)
+    m.SetProp('NumChiralCenters', str(len(centers)))
+    return
+
 
 
 def calcRingDescriptors(m):

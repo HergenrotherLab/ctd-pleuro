@@ -5,7 +5,7 @@ SCHRODINGER=/opt/schrodinger/suites2018-1
 LIGPREP_BIN=$(SCHRODINGER)/ligprep
 LIGPREP_OPTS=-inp ../../ligprep.inp -WAIT -NJOBS 4 -HOST localhost:2 -LOCAL
 
-.PHONY : all wash_molecules calc_props
+.PHONY : all wash_molecules calc_props figures
 all : calc_props wash_molecules
 
 wash_molecules : $(LIGPREP_FILES)
@@ -16,6 +16,9 @@ ligprep/%.sdf : structures/%.sdf
 calc_props : $(PROP_FILES)
 properties/%.csv : ligprep/%.sdf calc_props.py
 	python calc_props.py -i $< -o properties -c
+
+figures : $(PROP_FILES) plot_properties.R
+	Rscript plot_properties.R
 
 test:
 	nosetests tests
