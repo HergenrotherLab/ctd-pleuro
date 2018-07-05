@@ -24,7 +24,7 @@ pnas_cc <- read.csv("properties/PNAS_CC.csv") %>% select(properties) %>% mutate(
 pnas_np <- read.csv("properties/PNAS_NP.csv") %>% select(properties) %>% mutate(library = 'PNAS NP')
 pnas_dc <- read.csv("properties/PNAS_DC.csv") %>% select(properties) %>% mutate(library = 'PNAS DC')
 plm <- read.csv("properties/pleuromutilin.csv") %>% select(properties) %>% mutate(library = 'Pleuromutilin')
-lic <- read.csv("properties/LycorineSet5-11.csv") %>% select(properties) %>% mutate(library = 'Lycorine')
+lic <- read.csv("properties/lycorine.csv") %>% select(properties) %>% mutate(library = 'Lycorine')
 
 df <- rbind(aod8, oshea, drugbank, mlsmr, cl, exp, microformat, pnas_cc, pnas_np, pnas_dc, plm, lic)
 
