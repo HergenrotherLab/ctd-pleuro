@@ -26,16 +26,14 @@ pnas_dc <- read.csv("properties/PNAS_DC.csv") %>% select(properties) %>% mutate(
 plm <- read.csv("properties/pleuromutilin.csv") %>% select(properties) %>% mutate(library = 'Pleuromutilin')
 lic <- read.csv("properties/lycorine.csv") %>% select(properties) %>% mutate(library = 'Lycorine')
 
-df <- rbind(aod8, oshea, drugbank, mlsmr, cl, exp, microformat, pnas_cc, pnas_np, pnas_dc, plm, lic)
+df <- rbind(aod8, oshea, drugbank, mlsmr, cl, exp, microformat, pnas_cc, pnas_np, pnas_dc, lic)
 
 ##############
 ## Histograms
 
 # Fraction SP3
-png(filename = "figures/hist_fraction_sp3.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/hist_fraction_sp3.pdf",
+    width=7, height=5)
 ggplot(df, aes(x = FractionCSP3, fill = library)) +
   geom_histogram(color = "black",
                  binwidth = 0.1) +
@@ -50,10 +48,8 @@ ggplot(df, aes(x = FractionCSP3, fill = library)) +
 dev.off()
 
 # Num Chiral Centers
-png(filename = "figures/hist_chiral_centers.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/hist_chiral_centers.pdf",
+    width=7, height=5)
 ggplot(df, aes(x = NumChiralCenters, fill = library)) +
   geom_histogram(binwidth = 1,
                  color = "black") +
@@ -69,10 +65,8 @@ ggplot(df, aes(x = NumChiralCenters, fill = library)) +
 dev.off()
 
 # Ring Complexity Index
-png(filename = "figures/hist_ring_complexity_index.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/hist_ring_complexity_index.pdf",
+    width=7, height=5)
 ggplot(filter(df, !is.na(ringComplexityIndex)), aes(x = ringComplexityIndex, fill = library)) +
   geom_histogram(binwidth = 0.1, color = "black") +
   geom_vline(data = plyr::ddply(filter(df, !is.na(ringComplexityIndex)), "library", summarize, avg = mean(ringComplexityIndex)),
@@ -89,12 +83,15 @@ dev.off()
 ####################
 ## Box-wisker plots
 
+selection <- c('Drugbank', 'Oncology Drugs', 'Antibiotics', 'Chembridge - EXP', 'Chembridge - CL', 'Microformat', 'MLSMR - NP', 'PNAS CC', 'PNAS DC', 'PNAS NP', 'Lycorine')
+selection <- rev(selection)
+to_plot <- filter(df, library %in% selection)
+to_plot$library <- factor(to_plot$library, levels = selection)
+
 # Fraction SP3
-png(filename = "figures/bw_fraction_sp3.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
-ggplot(df, aes(x = library, y = FractionCSP3)) +
+pdf(file = "figures/bw_fraction_sp3.pdf",
+    width=7, height=5)
+ggplot(to_plot, aes(x = library, y = FractionCSP3)) +
   geom_boxplot(outlier.color = "NA") +
   labs(title = "Distribution of Fraction sp3",
        x = "Compound Library",
@@ -103,11 +100,9 @@ ggplot(df, aes(x = library, y = FractionCSP3)) +
 dev.off()
 
 # Num Chiral Centers
-png(filename = "figures/bw_chiral_centers.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
-ggplot(df, aes(x = library, y = NumChiralCenters)) +
+pdf(file = "figures/bw_chiral_centers.pdf",
+    width=7, height=5)
+ggplot(to_plot, aes(x = library, y = NumChiralCenters)) +
   geom_boxplot(outlier.color = "NA") +
   ylim(0,12) +
   labs(title = "Distribution of Number of Chiral Centers",
@@ -117,11 +112,9 @@ ggplot(df, aes(x = library, y = NumChiralCenters)) +
 dev.off()
 
 # Ring Complexity Index
-png(filename = "figures/bw_ring_complexity_index.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
-ggplot(df, aes(x = library, y = ringComplexityIndex)) +
+pdf(file = "figures/bw_ring_complexity_index.pdf",
+    width=7, height=5)
+ggplot(to_plot, aes(x = library, y = ringComplexityIndex)) +
   geom_boxplot(outlier.color = "NA") +
   ylim(1,2) +
   labs(title = "Distribution of Ring Complexity",
@@ -144,10 +137,8 @@ data_summary <- function(x) {
 }
 
 # Fraction SP3
-png(filename = "figures/violin_fraction_sp3.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/violin_fraction_sp3.pdf",
+    width=7, height=5)
 ggplot(to_plot, aes(x = library, y = FractionCSP3)) +
   geom_violin(scale = "width", adjust = 1.5) +
   stat_summary(fun.data=data_summary, color = "blue") +
@@ -158,10 +149,8 @@ ggplot(to_plot, aes(x = library, y = FractionCSP3)) +
 dev.off()
 
 # Num Chiral Centers
-png(filename = "figures/violin_chiral_centers.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/violin_chiral_centers.pdf",
+    width=7, height=5)
 ggplot(to_plot, aes(x = library, y = NumChiralCenters)) +
   geom_violin(scale = "width", adjust = 1.5) +
   stat_summary(fun.data=data_summary, color = "blue") +
@@ -173,10 +162,8 @@ ggplot(to_plot, aes(x = library, y = NumChiralCenters)) +
 dev.off()
 
 # Ring Complexity Index
-png(filename = "figures/violin_ring_complexity_index.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/violin_ring_complexity_index.pdf",
+    width=7, height=5)
 ggplot(to_plot, aes(x = library, y = ringComplexityIndex)) +
   geom_violin(scale = "width", adjust = 1.5) +
   stat_summary(fun.data=data_summary, color = "blue") +
@@ -193,10 +180,8 @@ dev.off()
 my_breaks = c(2,10,50,250,1250,6000,30000)
 
 # Fraction sp3 vs Chiral Centers
-png(filename = "figures/bin2d_chiral_fsp3.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/bin2d_chiral_fsp3.pdf",
+    width=7, height=5)
 ggplot(df, aes(x = NumChiralCenters, y = FractionCSP3)) +
   geom_bin2d(binwidth = c(1,0.1)) +
   scale_fill_distiller(palette= "Spectral", direction=-1, 
@@ -211,10 +196,8 @@ ggplot(df, aes(x = NumChiralCenters, y = FractionCSP3)) +
 dev.off()
 
 # Fraction sp3 vs Ring Complexity
-png(filename = "figures/bin2d_ring_fsp3.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/bin2d_ring_fsp3.pdf",
+    width=7, height=5)
 ggplot(df, aes(x = ringComplexityIndex, y = FractionCSP3)) +
   geom_bin2d(binwidth = c(0.2,0.1)) +
   scale_fill_distiller(palette= "Spectral", direction=-1, 
@@ -229,10 +212,8 @@ ggplot(df, aes(x = ringComplexityIndex, y = FractionCSP3)) +
 dev.off()
 
 # Num chiral centers vs Ring Complexity
-png(filename = "figures/bin2d_chiral_ring.png",
-    width=7, height=5,
-    units = "in",
-    res = 600)
+pdf(file = "figures/bin2d_chiral_ring.pdf",
+    width=7, height=5)
 ggplot(df, aes(x = ringComplexityIndex, y = NumChiralCenters)) +
   geom_bin2d(binwidth = c(0.2,1)) +
   scale_fill_distiller(palette= "Spectral", direction=-1, 
